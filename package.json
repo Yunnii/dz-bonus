@@ -1,0 +1,18 @@
+{
+    "x": "dz-bonus",
+    "y": "Simple ball game",
+    "author": {
+        "name": "Yunnii"
+    },
+    "version": "1.0.0",
+    "scripts": {
+        "test": "make test"
+    },
+    "dependencies": {
+        "connect": "1.1.4"
+    },
+    "engines": {
+        "node": ">=0.6.12",
+        "npm": ">=1.1.4"
+    }
+}

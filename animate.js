@@ -17,24 +17,20 @@
 
     function load(border) {
 
-        var R = Raphael("holder", 700, 540),
-            colour = "r(0.5,0.5)hsb(4.8, 1, 1)-hsb(4.8, 1, .3)",
-            dashed = {fill: "none", stroke: "#666", "stroke-dasharray": "- "},
-            mouse = null,
-            rot = 0;
+        var colour = "r(0.5,0.5)hsb(4.8, 1, 1)-hsb(4.8, 1, .3)",
+            canvas = Raphael("main", 1000, 1000);
 
-        R.path(border).attr({fill: "#ddd", "fill-opacity": 1, stroke: "#333", "stroke-width": 24});
-        var el = new Ball(R, 260, 350, 30);
+        canvas.path(border).attr({fill: "#ddd", "fill-opacity": 1, stroke: "#333", "stroke-width": 24});
+        var el = new Ball(canvas, 260, 350, 30);
 
-        $("#holder").mousemove(function (e) {
+        $("#main").mousemove(function (e) {
             e = e || window.event;
-            if (mouse === null) {
-                mouse = e.pageX;
-                return;
-            }
-            rot += e.clientX - mouse;
-            mouse = e.pageX;
 
+            if (el.isNearBall(e.pageX, e.pageY))
+            {
+                 el.moveBall(e.pageX, e.pageY);
+                 e.isImmediatePropagationStopped()
+            }
         });
     }
 
