@@ -19,8 +19,8 @@
         el,
         start = null,
         idInterval,
-        pathArray,
-        borderArray;
+        pathArray = [],
+        borderArray = [];
 
     function intersectChecker() {
         setInterval(function () {
