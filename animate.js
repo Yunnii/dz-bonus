@@ -77,6 +77,9 @@
         }
     }
 
+    /**
+     * инициализируем шар
+     */
     function load() {
 
         var colour = "r(0.5,0.5)hsb(4.8, 1, 1)-hsb(4.8, 1, .3)",
@@ -94,6 +97,8 @@
         $("#main").mousemove(moveBall);
     }
 
+    /** Загружаем координаты стенки
+    */
     function initialise() {
 
         $.getJSON('data.json')

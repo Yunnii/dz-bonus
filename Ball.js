@@ -10,12 +10,27 @@
 (function (exports) {
     "use strict";
 
+    /**
+     * Конструктор, принимает координаты центра шара, радиус и объект на котором необходимо его разместить
+     *
+     * @param {object} paper
+     * @param {double}x
+     * @param {double}y
+     * @param {double}r
+     *
+     * @example
+     *     item.set({title: "March 20", content: "In his eyes she eclipses..."});
+     */
     var Ball = function (paper, x, y, r) {
         this.r = r;
         this.circle = paper.circle(x, y, r).attr({fill: "#66e", "stroke-width": 2});
         this.areaRadius = r + 30;
     };
 
+    /** Отдает поле circle в виде строки типа Raphael.path
+    *
+    * @return {string} Cтроковое представление.
+    */
     function getCircleToPath(x, y, r) {
         var s = "M";
         s = s + (x) + "," + (y - r) + "A" + r + "," + r + ",0,1,1," + (x - 0.1) + "," + (y - r) + "z";
@@ -24,6 +39,11 @@
 
     exports.Ball = Ball;
 
+    /** Изменяет положение объекта
+    *
+    * @param {double}x - новая координата х центра
+    * @param {double}y - новая координат у центра
+    */
     Ball.prototype.SetXY = function (x, y) {
         this.circle.attrs.cx = x;
         this.circle.attrs.cy = y;
@@ -34,6 +54,12 @@
     Ball.prototype.circleString = function () { return getCircleToPath(this.X(), this.Y(), this.r); };
 
     var speed = 50;
+
+    /** Перемещение в указанном направлении
+    *
+    * @param {double}x - координата x, откуда по отношению к центру был толчок
+    * @param {double}y - координата y, откуда по отношению к центру был толчок
+    */
 
     Ball.prototype.moveBall = function (x, y) {
 
@@ -60,12 +86,25 @@
         this.SetXY(nextX, nextY);
     };
 
+    /** Принадлежит ли точка, переданная в параметре окрестности радиуса this.areaRadius шара
+    *
+    * @param {double}x - координата x
+    * @param {double}y - координата y
+    */
     Ball.prototype.isNearBall = function (x, y) {
         return (Math.abs(this.X() - x) < this.areaRadius &&
                 Math.abs(this.Y() - y) < this.areaRadius);
     };
-                    // ищем уравнение прямой, перпендикулярной стенке, о которую ударились
-                    // находим точку, симметричную центру относительно данной прямой
+
+    /** Перемещение в указанном направлении
+    * ищем уравнение прямой, перпендикулярной стенке, о которую ударились
+    * находим точку, симметричную центру относительно данной прямой
+    *
+    * @param {double}hitX - координата x столкновения со стенкой
+    * @param {double}hitY - координата y столкновения со стенкой
+    * @param {double}tangens - тангенс угла наклона стенки
+    */
+
     Ball.prototype.findReflectionPoint = function (hitX, hitY, tangens) {
         var center = {X : this.X(), Y: this.Y()},
             revertTangens = (tangens === 0) ? 0 : 1 / tangens;
@@ -80,5 +119,5 @@
             pushY = 2 * hitY - resultY;
 
         return {x : pushX, y: pushY};
-    }
+    };
 }(window));
