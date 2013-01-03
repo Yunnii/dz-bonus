@@ -18,42 +18,42 @@
     var template = "M <%= x1 %>,<%= y1 %> L <%= x2 %>, <%= y2 %> L <%= x1 %>,<%= y1 %>",
         el,
         start = null,
-        idInterval,
+        idInterval = null,
         pathArray = [],
         borderArray = [];
+
+    function avg(collection) {
+        var average = { x: 0, y: 0};
+        collection.forEach(function (el) {
+            average.x += el.x;
+            average.y += el.y;
+        });
+        return {
+            X: average.x / collection.length,
+            Y: average.y / collection.length
+        };
+    }
 
     function intersectChecker() {
         setInterval(function () {
             var i,
                 bbox,
                 intersect,
-                hit,
-                nextPoint,
-                tan;
+                tangens,
+                hit;
 
             for (i = 0; i < pathArray.length; i += 1) {
 
                 intersect = Raphael.pathIntersection(pathArray[i], el.circleString());
                 if (intersect.length > 0) {
-                    clearInterval(idInterval);
-
-                    hit = { x: 0, y: 0};
-                    intersect.forEach(function (el) {
-                        hit.x += el.x;
-                        hit.y += el.y;
-                    });
-                    hit.x /= intersect.length;
-                    hit.y /= intersect.length;
+                    hit = avg(intersect);
 
                     bbox = borderArray[i].getBBox();
-                    tan = (bbox.x - bbox.x2 === 0) ? 0 : (bbox.y - bbox.y2) / (bbox.x - bbox.x2);
+                    tangens = (bbox.x2 - bbox.x === 0)
+                        ? (bbox.y2 - bbox.y) / (bbox.x2 - bbox.x + 1)
+                        : (bbox.y2 - bbox.y) / (bbox.x2 - bbox.x);
 
-                    nextPoint = el.findReflectionPoint(hit.x, hit.y, tan);
-
-                    el.moveBall(nextPoint.x, nextPoint.y);
-                    idInterval = setInterval(function () {
-                        el.moveBall(nextPoint.x, nextPoint.y);
-                    }, 1000);
+                    el.reflectDirection(tangens, hit);
                 }
             }
         }, 100);
@@ -67,13 +67,15 @@
         e = e || window.event;
 
         if (el.isNearBall(e.pageX, e.pageY)) {
-            clearInterval(idInterval);
-            el.moveBall(e.pageX, e.pageY);
-            idInterval = setInterval(function () {
-                el.moveBall(e.pageX, e.pageY);
-            }, 1000);
 
-            e.isImmediatePropagationStopped();
+            el.moveBall(e.pageX, e.pageY);
+
+            if (idInterval === null) {
+                el.move();
+                idInterval = setInterval(function () {
+                    el.move();
+                }, 200);
+            }
         }
     }
 

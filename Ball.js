@@ -53,7 +53,7 @@
     Ball.prototype.Y = function () { return this.circle.attrs.cy; };
     Ball.prototype.circleString = function () { return getCircleToPath(this.X(), this.Y(), this.r); };
 
-    var speed = 50;
+    var speed = 30;
 
     /** Перемещение в указанном направлении
     *
@@ -64,25 +64,25 @@
     Ball.prototype.moveBall = function (x, y) {
 
         var center = {X : this.X(), Y: this.Y()},
-            tangens = (x - center.X === 0) ? 0 : (y - center.Y) / (x - center.X),
-            nextX,
-            nextY;
+            hypot = Math.sqrt((center.Y - y) * (center.Y - y) + (center.X - x) * (center.X - x));
 
-        if (x - center.X === 0) {
-            nextX = center.X;
-            nextY = (y - center.Y > 0) ? center.Y - speed :
-                    center.Y + speed;
-        } else {
-            nextX = (x - center.X > 0) ? center.X - speed :
-                    center.X + speed;
-            nextY = tangens * nextX + (center.Y - tangens * center.X);
-            if (Math.abs(tangens) > 1.1) {
-                nextY = (y - center.Y > 0) ? center.Y - speed :
-                        center.Y + speed;
-            }
-        }
+        this.tangens = (x - center.X === 0)
+            ? (y - center.Y) / (x - center.X + 1)
+            : (y - center.Y) / (x - center.X);
+        this.sinus = (center.Y - y) / hypot;
+        this.cosinus = (center.X - x) / hypot;
+    };
 
-        this.circle.animate({cx: nextX, cy: nextY}, 1000);
+    /** Двигаться в указанном ранее направлении
+    *
+    */
+    Ball.prototype.move = function () {
+
+        var center = {X : this.X(), Y: this.Y()},
+            nextX = center.X + speed * this.cosinus,
+            nextY = center.Y + speed * this.sinus;
+
+        this.circle.stop().animate({cx: nextX, cy: nextY}, 1000);
         this.SetXY(nextX, nextY);
     };
 
@@ -98,26 +98,21 @@
 
     /** Перемещение в указанном направлении
     * ищем уравнение прямой, перпендикулярной стенке, о которую ударились
-    * находим точку, симметричную центру относительно данной прямой
+    * находим точку, симметричную точке (x=0, y=f(x), такое что (x,y) принадлежит прямой, вдоль движения шара)
+    * относительно данной прямой
     *
-    * @param {double}hitX - координата x столкновения со стенкой
-    * @param {double}hitY - координата y столкновения со стенкой
     * @param {double}tangens - тангенс угла наклона стенки
     */
 
-    Ball.prototype.findReflectionPoint = function (hitX, hitY, tangens) {
+    Ball.prototype.reflectDirection = function (tangens2, hit) {
         var center = {X : this.X(), Y: this.Y()},
-            revertTangens = (tangens === 0) ? 0 : 1 / tangens;
+            y_a = center.Y - this.tangens * center.X,
+            x_b = (tangens2 - this.tangens) * tangens2 * center.X / (tangens2 * tangens2 + 1),
+            y_b = tangens2 * x_b + (center.Y - tangens2 * center.X),
+            x_c = 2 * x_b,
+            y_c = 2 * y_b - y_a,
+            product = (-y_a + center.Y - tangens2 * center.X) * (-hit.Y + tangens2 * hit.X + center.Y - tangens2 * center.X);
 
-        var x = (tangens === 0) ? hitX : (tangens / (tangens * tangens + 1)) * (hitY - center.Y + tangens * center.X + hitX * revertTangens);
-        var y = (tangens === 0) ? center.Y :  tangens * x + (center.Y - tangens * center.X);
-
-        var resultX = 2 * x - center.X,
-            resultY = 2 * y - center.Y;
-
-        var pushX = 2 * hitX - resultX,
-            pushY = 2 * hitY - resultY;
-
-        return {x : pushX, y: pushY};
+        return (product > 0) ? this.moveBall(0, y_a) : this.moveBall(x_c, y_c);
     };
 }(window));

@@ -17,7 +17,7 @@ function move(x, y) {
 
         if(x - center.X === 0) {
             nextX = center.X;
-            nextY = (y - center.Y > 0 ) ? center.Y - 20 :
+            nextY = (y - center.Y > 0) ? center.Y - 20 :
                     center.Y + 20;
         }
         else{
