@@ -6,6 +6,8 @@
  * To change this template use File | Settings | File Templates.
  */
 /*global R: true*/
+/*global Point: true*/
+/*global Vector: true*/
 
 (function (exports) {
     "use strict";
@@ -25,6 +27,7 @@
         this.r = r;
         this.circle = paper.circle(x, y, r).attr({fill: "#66e", "stroke-width": 2});
         this.areaRadius = r + 30;
+        this.Speed = new Vector(0, 0);
     };
 
     /** Отдает поле circle в виде строки типа Raphael.path
@@ -63,14 +66,13 @@
 
     Ball.prototype.moveBall = function (x, y) {
 
-        var center = {X : this.X(), Y: this.Y()},
-            hypot = Math.sqrt((center.Y - y) * (center.Y - y) + (center.X - x) * (center.X - x));
+        var center = new Point(this.X(), this.Y()),
+            hypot = Math.sqrt((center.Y - y) * (center.Y - y) + (center.X - x) * (center.X - x)),
+            sinus = (center.Y - y) / hypot,
+            cosinus = (center.X - x) / hypot;
 
-        this.tangens = (x - center.X === 0)
-            ? (y - center.Y) / (x - center.X + 1)
-            : (y - center.Y) / (x - center.X);
-        this.sinus = (center.Y - y) / hypot;
-        this.cosinus = (center.X - x) / hypot;
+        this.Speed.V.X = cosinus * speed;
+        this.Speed.V.Y = sinus * speed;
     };
 
     /** Двигаться в указанном ранее направлении
@@ -78,9 +80,9 @@
     */
     Ball.prototype.move = function () {
 
-        var center = {X : this.X(), Y: this.Y()},
-            nextX = center.X + speed * this.cosinus,
-            nextY = center.Y + speed * this.sinus;
+        var center = new Point(this.X(), this.Y()),
+            nextX = center.X + this.Speed.V.X,
+            nextY = center.Y + this.Speed.V.Y;
 
         this.circle.stop().animate({cx: nextX, cy: nextY}, 1000);
         this.SetXY(nextX, nextY);
@@ -104,15 +106,18 @@
     * @param {double}tangens - тангенс угла наклона стенки
     */
 
-    Ball.prototype.reflectDirection = function (tangens2, hit) {
-        var center = {X : this.X(), Y: this.Y()},
-            y_a = center.Y - this.tangens * center.X,
-            x_b = (tangens2 - this.tangens) * tangens2 * center.X / (tangens2 * tangens2 + 1),
-            y_b = tangens2 * x_b + (center.Y - tangens2 * center.X),
-            x_c = 2 * x_b,
-            y_c = 2 * y_b - y_a,
-            product = (-y_a + center.Y - tangens2 * center.X) * (-hit.Y + tangens2 * hit.X + center.Y - tangens2 * center.X);
+    Ball.prototype.reflectDirection = function (borderLine) {
 
-        return (product > 0) ? this.moveBall(0, y_a) : this.moveBall(x_c, y_c);
+        var center = new Point(this.X(), this.Y()),
+            normalToBorderLine = borderLine.GetNormalLine(center),
+            previousLocation = new Point(center.X - this.Speed.V.X, center.Y - this.Speed.V.Y),
+            parallelToBOrderLine = normalToBorderLine.GetNormalLine(previousLocation),
+            reflectionPoint = parallelToBOrderLine.GetIntersectPoint(normalToBorderLine),
+            nextPoint = new Point(2 * previousLocation.X - reflectionPoint.X, 2 * previousLocation.Y - reflectionPoint.Y),
+            normalizeNext = Vector.GetVectorFrom2Point(center, nextPoint).Normalize(),
+            speedLength  = this.Speed.GetLength();
+
+        this.Speed.V.X = speedLength * normalizeNext.V.X;
+        this.Speed.V.Y = speedLength * normalizeNext.V.Y;
     };
 }(window));

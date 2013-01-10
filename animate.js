@@ -11,6 +11,9 @@
 /*global model: true*/
 /*global Ball: true*/
 /*global tmpl: true*/
+/*global Point: true*/
+/*global Line: true*/
+
 (function (exports) {
     "use strict";
 
@@ -46,14 +49,12 @@
 
                 intersect = Raphael.pathIntersection(pathArray[i], el.circleString());
                 if (intersect.length > 0) {
+                    el.circle.stop();
                     hit = avg(intersect);
 
                     bbox = borderArray[i].getBBox();
-                    tangens = (bbox.x2 - bbox.x === 0)
-                        ? (bbox.y2 - bbox.y) / (bbox.x2 - bbox.x + 1)
-                        : (bbox.y2 - bbox.y) / (bbox.x2 - bbox.x);
-
-                    el.reflectDirection(tangens, hit);
+                    el.reflectDirection(Line.GetLineFrom2Point(new Point(bbox.x, bbox.y), new Point(bbox.x2, bbox.y2)));
+                    el.move();
                 }
             }
         }, 100);
@@ -74,7 +75,7 @@
                 el.move();
                 idInterval = setInterval(function () {
                     el.move();
-                }, 200);
+                }, 300);
             }
         }
     }
