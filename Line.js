@@ -25,6 +25,10 @@
         return temp;
     };
 
+    Line.prototype.GetCollinearV = function () {
+        return new Vector(-this.B, this.A);
+    };
+
     Line.prototype.GetNormalLine = function (point) {
 
         var a = -this.B,

@@ -12,6 +12,9 @@
 (function (exports) {
     "use strict";
 
+    var colour = "90-rgb(151, 193, 246)-rgb(89, 154, 219)",
+        colour2 = "rgb(122, 173, 241)";
+
     /**
      * Конструктор, принимает координаты центра шара, радиус и объект на котором необходимо его разместить
      *
@@ -25,7 +28,8 @@
      */
     var Ball = function (paper, x, y, r) {
         this.r = r;
-        this.circle = paper.circle(x, y, r).attr({fill: "#66e", "stroke-width": 2});
+
+        this.circle = paper.circle(x, y, r).attr({fill: colour, "stroke-width": 2, stroke: colour2});
         this.areaRadius = r + 30;
         this.Speed = new Vector(0, 0);
     };

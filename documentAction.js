@@ -17,24 +17,38 @@
 (function (exports) {
     "use strict";
 
+    Array.prototype.pushArray = function (arr) {
+        this.push.apply(this, arr);
+    };
+
+    Array.prototype.containsPoint = function (point) {
+        var i;
+        for (i = 0; i < this.length; i += 1) {
+            if (Math.abs(this[i].x - point.x) < 0.1 && Math.abs(this[i].y - point.y) < 0.1) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     var template = "M <%= previous.X %>,<%= previous.Y %> L <%= next.X %>, <%= next.Y %> L <%= next.X %>,<%= next.Y %>",
         el,
-        start = null,
         idInterval = null,
         pathArray = [],
         borderArray = [];
 
+
     function intersectChecker() {
         var i,
-            hitNumber,
-            intersect,
+            hitNumber = [],
+            intersect = [],
             hitCount = 0;
 
         for (i = 0; i < pathArray.length; i += 1) {
             intersect = Raphael.pathIntersection(pathArray[i], el.circleString());
             if (intersect.length > 0) {
                 hitCount += 1;
-                hitNumber = i;
+                hitNumber.push(i);
             }
         }
         if (hitCount === 1) {
@@ -66,14 +80,13 @@
      * инициализируем шар
      */
     function load() {
-
-        var colour = "r(0.5,0.5)hsb(4.8, 1, 1)-hsb(4.8, 1, .3)",
-            canvas = Raphael("main", 1000, 1000);
+        var canvas = Raphael("main", 1000, 1000);
 
         pathArray.forEach(function (path) {
             canvas.path(path)
+                        .attr({fill: "#ddd", "fill-opacity": 1, stroke: "#fff", "stroke-width": 22});
+            canvas.path(path)
                         .attr({fill: "#ddd", "fill-opacity": 1, stroke: "#333", "stroke-width": 16});
-
         });
 
         el = new Ball(canvas, 260, 350, 30);
@@ -81,9 +94,10 @@
         $("#main").mousemove(moveBall);
     }
 
-    /** Загружаем координаты стенки
+    /**
+     * Загружаем координаты стенки
     */
-    function initialise() {
+    function loadData() {
 
         $.getJSON('data.json')
                 .error(function () { alert("Попробуйте позже, сервер недоступен =)"); })
@@ -112,6 +126,6 @@
             });
     }
 
-    $(document).ready(initialise);
+    $(document).ready(loadData);
 
 }(window));
