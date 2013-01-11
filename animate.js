@@ -17,65 +17,47 @@
 (function (exports) {
     "use strict";
 
-   // exports.R = R;
-    var template = "M <%= x1 %>,<%= y1 %> L <%= x2 %>, <%= y2 %> L <%= x1 %>,<%= y1 %>",
+    var template = "M <%= previous.X %>,<%= previous.Y %> L <%= next.X %>, <%= next.Y %> L <%= next.X %>,<%= next.Y %>",
         el,
         start = null,
         idInterval = null,
         pathArray = [],
         borderArray = [];
 
-    function avg(collection) {
-        var average = { x: 0, y: 0};
-        collection.forEach(function (el) {
-            average.x += el.x;
-            average.y += el.y;
-        });
-        return {
-            X: average.x / collection.length,
-            Y: average.y / collection.length
-        };
-    }
-
     function intersectChecker() {
-        setInterval(function () {
-            var i,
-                bbox,
-                intersect,
-                tangens,
-                hit;
+        var i,
+            hitNumber,
+            intersect,
+            hitCount = 0;
 
-            for (i = 0; i < pathArray.length; i += 1) {
-
-                intersect = Raphael.pathIntersection(pathArray[i], el.circleString());
-                if (intersect.length > 0) {
-                    el.circle.stop();
-                    hit = avg(intersect);
-
-                    bbox = borderArray[i].getBBox();
-                    el.reflectDirection(Line.GetLineFrom2Point(new Point(bbox.x, bbox.y), new Point(bbox.x2, bbox.y2)));
-                    el.move();
-                }
+        for (i = 0; i < pathArray.length; i += 1) {
+            intersect = Raphael.pathIntersection(pathArray[i], el.circleString());
+            if (intersect.length > 0) {
+                hitCount += 1;
+                hitNumber = i;
             }
-        }, 100);
+        }
+        if (hitCount === 1) {
+            el.reflectDirection(borderArray[hitNumber]);
+        } else if (hitCount > 1) {
+            el.reflect();
+        }
     }
 
     function moveBall(e) {
-        if (start === null) {
-            start = 1;
-            intersectChecker();
-        }
         e = e || window.event;
 
         if (el.isNearBall(e.pageX, e.pageY)) {
-
             el.moveBall(e.pageX, e.pageY);
 
             if (idInterval === null) {
+                intersectChecker();
                 el.move();
+
                 idInterval = setInterval(function () {
+                    intersectChecker();
                     el.move();
-                }, 300);
+                }, 200);
             }
         }
     }
@@ -90,9 +72,8 @@
 
         pathArray.forEach(function (path) {
             canvas.path(path)
-                        .attr({fill: "#ddd", "fill-opacity": 1, stroke: "#fff", "stroke-width": 16});
-            borderArray.push(canvas.path(path)
-                        .attr({fill: "#ddd", "fill-opacity": 1, stroke: "#333", "stroke-width": 12}));
+                        .attr({fill: "#ddd", "fill-opacity": 1, stroke: "#333", "stroke-width": 16});
+
         });
 
         el = new Ball(canvas, 260, 350, 30);
@@ -111,19 +92,22 @@
                     return;
                 }
 
-                var i;
+                var i,
+                    next,
+                    previous = new Point(result[0].x, result[0].y);
 
-                for (i = 0; i < result.length - 1; i += 1) {
-                    pathArray.push(tmpl(template, { x1: result[i].x,
-                                                    y1: result[i].y,
-                                                    x2: result[i + 1].x,
-                                                    y2: result[i + 1].y}));
+                for (i = 1; i < result.length - 1; i += 1) {
+                    next = new Point(result[i + 1].x, result[i + 1].y);
+                    pathArray.push(tmpl(template, { previous: previous,
+                                                    next: next}));
+                    borderArray.push(Line.GetLineFrom2Point(previous,  next));
+                    previous = next;
                 }
-                pathArray.push(tmpl(template, { x1: result[result.length - 1].x,
-                                                y1: result[result.length - 1].y,
-                                                x2: result[0].x,
-                                                y2: result[0].y}));
 
+                next = new Point(result[0].x, result[0].y);
+                pathArray.push(tmpl(template, { previous: previous,
+                                                next: next}));
+                borderArray.push(Line.GetLineFrom2Point(previous,  next));
                 load();
             });
     }

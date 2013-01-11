@@ -6,7 +6,6 @@
     };
 
     exports.Line = Line;
-    Line.prototype.constructor = Line;
 
     Line.GetLineFrom2Point = function (start, finish) {
         var temp = new Line();

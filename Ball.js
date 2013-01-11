@@ -56,7 +56,7 @@
     Ball.prototype.Y = function () { return this.circle.attrs.cy; };
     Ball.prototype.circleString = function () { return getCircleToPath(this.X(), this.Y(), this.r); };
 
-    var speed = 30;
+    var speed = 10;
 
     /** Перемещение в указанном направлении
     *
@@ -84,8 +84,7 @@
             nextX = center.X + this.Speed.V.X,
             nextY = center.Y + this.Speed.V.Y;
 
-        this.circle.stop().animate({cx: nextX, cy: nextY}, 1000);
-        this.SetXY(nextX, nextY);
+        this.circle.stop().animate({cx: nextX, cy: nextY}, 200);
     };
 
     /** Принадлежит ли точка, переданная в параметре окрестности радиуса this.areaRadius шара
@@ -110,14 +109,19 @@
 
         var center = new Point(this.X(), this.Y()),
             normalToBorderLine = borderLine.GetNormalLine(center),
-            previousLocation = new Point(center.X - this.Speed.V.X, center.Y - this.Speed.V.Y),
+            previousLocation = new Point(center.X - 2 * this.Speed.V.X, center.Y - 2 * this.Speed.V.Y),
             parallelToBOrderLine = normalToBorderLine.GetNormalLine(previousLocation),
             reflectionPoint = parallelToBOrderLine.GetIntersectPoint(normalToBorderLine),
-            nextPoint = new Point(2 * previousLocation.X - reflectionPoint.X, 2 * previousLocation.Y - reflectionPoint.Y),
+            nextPoint = new Point(2 * reflectionPoint.X - previousLocation.X, 2 * reflectionPoint.Y - previousLocation.Y),
             normalizeNext = Vector.GetVectorFrom2Point(center, nextPoint).Normalize(),
-            speedLength  = this.Speed.GetLength();
+            speedLength  = speed;
 
         this.Speed.V.X = speedLength * normalizeNext.V.X;
         this.Speed.V.Y = speedLength * normalizeNext.V.Y;
+    };
+
+    Ball.prototype.reflect = function () {
+        this.Speed.V.X = -this.Speed.V.X;
+        this.Speed.V.Y = -this.Speed.V.Y;
     };
 }(window));

@@ -5,66 +5,40 @@
  * Time: 7:05 PM
  * To change this template use File | Settings | File Templates.
  */
-var center = {X: 240, Y: 300},
-    nextX,
-    nextY;
+var ball;
+function load() {
+    var canvas = Raphael(10, 50, 320, 200);
+    ball = new Ball(canvas, 20, 20, 10);
+   // this.Speed.V.X = 30;
+   // this.Speed.V.Y = -30;
+}
 
-function move(x, y) {
+$(document).ready(load);
 
-        var tangens = (x - center.X === 0) ? 0 : (y - center.Y) / (x - center.X),
-            nextX,
-            nextY;
-
-        if(x - center.X === 0) {
-            nextX = center.X;
-            nextY = (y - center.Y > 0) ? center.Y - 20 :
-                    center.Y + 20;
-        }
-        else{
-            nextX = (x - center.X > 0) ? center.X - 20 :
-                    center.X + 20;
-            nextY = tangens * nextX + (center.Y - tangens * center.X);
-        }
-
-        return {X: nextX, Y: nextY};
-    }
-
-test("Moving ball, move right-up", function () {
+test("Moving", function () {
     "use strict";
 
-    var result = move(160, 200);
+    ball.moveBall(0, 0);
 
-    ok(result.X === 260 && result.Y === 325);
+    ok(ball.Speed.V.X - 30 * Math.sqrt(2) / 2 < 0.1 && ball.Speed.V.Y - 30 * Math.sqrt(2) / 2 < 0.1);
 });
 
-test("Moving ball, move up", function () {
+test("Reflect moving", function () {
     "use strict";
 
-    var result = move(240, 180);
+    ball.moveBall(0, 0);
+    var border = Line.GetLineFrom2Point(new Point(0,60), new Point(60, 0));
+    ball.reflectDirection(border);
 
-    ok(result.X === 240 && result.Y === 320);
+    ok(ball.Speed.V.X + 30 * Math.sqrt(2) / 2 < 0.1 && ball.Speed.V.Y + 30 * Math.sqrt(2) / 2 < 0.1);
 });
 
-test("Moving ball, move down", function () {
+test("Reflect moving", function () {
     "use strict";
 
-    var result = move(240, 390);
+    ball.moveBall(0, 0);
+    var border = Line.GetLineFrom2Point(new Point(20, 20), new Point(0, 20));
+    ball.reflectDirection(border);
 
-    ok(result.X === 240 && result.Y === 280);
-});
-
-test("Moving ball, move horizontally", function () {
-    "use strict";
-
-    var result = move(210, 300);
-
-    ok(result.X === 260 && result.Y === 300);
-});
-
-test("Moving ball, move horizontally left", function () {
-    "use strict";
-
-    var result = move(290, 300);
-
-    ok(result.X === 220 && result.Y === 300);
-});
+    ok(ball.Speed.V.X - 30 * Math.sqrt(2) / 2 < 0.1 && ball.Speed.V.Y + 30 * Math.sqrt(2) / 2 < 0.1);
+})
