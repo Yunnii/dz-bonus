@@ -13,7 +13,8 @@
     "use strict";
 
     var colour = "90-rgb(151, 193, 246)-rgb(89, 154, 219)",
-        colour2 = "rgb(122, 173, 241)";
+        borderColour = "rgb(122, 173, 250)",
+        speed = 10;
 
     /**
      * Конструктор, принимает координаты центра шара, радиус и объект на котором необходимо его разместить
@@ -23,13 +24,11 @@
      * @param {double}y
      * @param {double}r
      *
-     * @example
-     *     item.set({title: "March 20", content: "In his eyes she eclipses..."});
      */
     var Ball = function (paper, x, y, r) {
         this.r = r;
 
-        this.circle = paper.circle(x, y, r).attr({fill: colour, "stroke-width": 2, stroke: colour2});
+        this.circle = paper.circle(x, y, r).attr({fill: colour, "stroke-width": 2, stroke: borderColour});
         this.areaRadius = r + 30;
         this.Speed = new Vector(0, 0);
     };
@@ -46,23 +45,12 @@
 
     exports.Ball = Ball;
 
-    /** Изменяет положение объекта
-    *
-    * @param {double}x - новая координата х центра
-    * @param {double}y - новая координат у центра
-    */
-    Ball.prototype.SetXY = function (x, y) {
-        this.circle.attrs.cx = x;
-        this.circle.attrs.cy = y;
-    };
-
     Ball.prototype.X = function () { return this.circle.attrs.cx; };
     Ball.prototype.Y = function () { return this.circle.attrs.cy; };
     Ball.prototype.circleString = function () { return getCircleToPath(this.X(), this.Y(), this.r); };
 
-    var speed = 10;
-
-    /** Перемещение в указанном направлении
+    /**
+    * Пересчитать скорость для движения в указанном направлении
     *
     * @param {double}x - координата x, откуда по отношению к центру был толчок
     * @param {double}y - координата y, откуда по отношению к центру был толчок
@@ -75,23 +63,23 @@
             sinus = (center.Y - y) / hypot,
             cosinus = (center.X - x) / hypot;
 
-        this.Speed.V.X = cosinus * speed;
-        this.Speed.V.Y = sinus * speed;
+        this.Speed.set(cosinus * speed, sinus * speed);
     };
 
-    /** Двигаться в указанном ранее направлении
+    /**
+    *  Двигаться в указанном ранее направлении
     *
     */
     Ball.prototype.move = function () {
 
         var center = new Point(this.X(), this.Y()),
-            nextX = center.X + this.Speed.V.X,
-            nextY = center.Y + this.Speed.V.Y;
+            nextX = center.X + this.Speed.X(),
+            nextY = center.Y + this.Speed.Y();
 
-        this.circle.stop().animate({cx: nextX, cy: nextY}, 200);
+        this.circle.animate({cx: nextX, cy: nextY}, 200);
     };
 
-    /** Принадлежит ли точка, переданная в параметре окрестности радиуса this.areaRadius шара
+    /** Принадлежит ли точка, переданная в параметре, окрестности радиуса this.areaRadius шара
     *
     * @param {double}x - координата x
     * @param {double}y - координата y
@@ -101,31 +89,38 @@
                 Math.abs(this.Y() - y) < this.areaRadius);
     };
 
-    /** Перемещение в указанном направлении
-    * ищем уравнение прямой, перпендикулярной стенке, о которую ударились
-    * находим точку, симметричную точке (x=0, y=f(x), такое что (x,y) принадлежит прямой, вдоль движения шара)
-    * относительно данной прямой
+    /**
+     * Вызывает мерцание объекта
+    */
+    Ball.prototype.merkle = function () {
+        this.circle.attr({fill: "#fff", r: this.r + 5})
+            .animate({fill: colour, "stroke-width": 2, stroke: borderColour, r: this.r}, 500);
+    };
+
+    /**
+    * Пересчет скорости при возникновении события "отражение от стенки"
     *
-    * @param {double}tangens - тангенс угла наклона стенки
+    * @param {Line}borderLine - уравнение прямой, описывающей стенку
     */
 
     Ball.prototype.reflectDirection = function (borderLine) {
 
         var center = new Point(this.X(), this.Y()),
             normalToBorderLine = borderLine.GetNormalLine(center),
-            previousLocation = new Point(center.X - 2 * this.Speed.V.X, center.Y - 2 * this.Speed.V.Y),
-            parallelToBOrderLine = normalToBorderLine.GetNormalLine(previousLocation),
-            reflectionPoint = parallelToBOrderLine.GetIntersectPoint(normalToBorderLine),
+            previousLocation = new Point(center.X - 2 * this.Speed.X(), center.Y - 2 * this.Speed.Y()),
+            parallelToBorderLine = normalToBorderLine.GetNormalLine(previousLocation),
+            reflectionPoint = parallelToBorderLine.GetIntersectPoint(normalToBorderLine),
             nextPoint = new Point(2 * reflectionPoint.X - previousLocation.X, 2 * reflectionPoint.Y - previousLocation.Y),
-            normalizeNext = Vector.GetVectorFrom2Point(center, nextPoint).Normalize(),
-            speedLength  = speed;
+            normalizeNext = Vector.GetVectorFrom2Point(center, nextPoint).Normalize();
 
-        this.Speed.V.X = speedLength * normalizeNext.V.X;
-        this.Speed.V.Y = speedLength * normalizeNext.V.Y;
+        this.Speed.set(speed * normalizeNext.X(), speed * normalizeNext.Y());
     };
 
+    /**
+     * Изменить направление скорости на противоположное
+     */
+
     Ball.prototype.reflect = function () {
-        this.Speed.V.X = -this.Speed.V.X;
-        this.Speed.V.Y = -this.Speed.V.Y;
+        this.Speed.set(-this.Speed.X(), -this.Speed.Y());
     };
 }(window));

@@ -27,3 +27,13 @@ test("Test Intersect line", function () {
 
     ok(crossPoint.X === -4 && crossPoint.Y === 0);
 });
+
+test("Test Creating line", function () {
+    "use strict";
+
+    var v = new Vector(2, 2),
+        point = new Point(0, 2),
+        line = Line.GetLineFromVectorAndPoint(v, point);
+
+    ok(line.A === 2 && line.B === -2 && line.C === 4);
+});

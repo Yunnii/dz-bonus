@@ -8,6 +8,10 @@
 (function (exports) {
     "use strict";
 
+    /**
+     * @param x
+     * @param y
+     */
     var Point = function (x, y) {
         this.X = x;
         this.Y = y;
@@ -17,6 +21,12 @@
 
     Point.Zero = new Point(0, 0);
 
+    /**
+     * Находит расстояние между точками
+     *
+     * @param otherPoint - точка, до которой необходимо найти расстояние
+     * @return {Number} - расстояние между точками
+     */
     Point.prototype.GetDistanceBetween = function (otherPoint) {
 
         return Math.sqrt((otherPoint.X - this.X) * (otherPoint.X - this.X)  + (otherPoint.Y - this.Y) * (otherPoint.Y - this.Y));

@@ -10,7 +10,7 @@ test("Test All setup", function () {
 
     var v = new Vector(2, 4);
 
-    ok(v.V.X === 2 && v.V.Y === 4);
+    ok(v.X() === 2 && v.Y() === 4);
 });
 
 test("Test Find vector length", function () {
@@ -34,5 +34,5 @@ test("Test vector normalization", function () {
 
     var v = new Vector(-3, 4).Normalize();
 
-    ok(v.V.X === -3 / 5 && v.V.Y === 4 / 5);
+    ok(v.X() === -3 / 5 && v.Y() === 4 / 5);
 });
