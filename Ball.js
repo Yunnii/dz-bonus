@@ -13,7 +13,6 @@
     "use strict";
 
     var colour = "90-rgb(151, 193, 246)-rgb(89, 154, 219)",
-        borderColour = "rgb(122, 173, 250)",
         speed = 10;
 
     /**
@@ -28,27 +27,17 @@
     var Ball = function (paper, x, y, r) {
         this.r = r;
 
-        this.circle = paper.circle(x, y, r).attr({fill: colour, "stroke-width": 2, stroke: borderColour});
+        this.circle = paper.circle(x, y, r).attr({fill: colour});
         this.areaRadius = r + 30;
         this.Speed = new Vector(0, 0);
     };
-
-    /** Отдает поле circle в виде строки типа Raphael.path
-    *
-    * @return {string} Cтроковое представление.
-    */
-    function getCircleToPath(x, y, r) {
-        var s = "M";
-        s = s + (x) + "," + (y - r) + "A" + r + "," + r + ",0,1,1," + (x - 0.1) + "," + (y - r) + "z";
-        return s;
-    }
 
     exports.Ball = Ball;
 
     Ball.prototype.X = function () { return this.circle.attrs.cx; };
     Ball.prototype.Y = function () { return this.circle.attrs.cy; };
     Ball.prototype.circleString = function () { return getCircleToPath(this.X(), this.Y(), this.r); };
-
+    Ball.prototype.moveSpeed = function () { return speed; };
     /**
     * Пересчитать скорость для движения в указанном направлении
     *
@@ -70,13 +59,13 @@
     *  Двигаться в указанном ранее направлении
     *
     */
-    Ball.prototype.move = function () {
+    Ball.prototype.move = function (updateTime) {
 
         var center = new Point(this.X(), this.Y()),
             nextX = center.X + this.Speed.X(),
             nextY = center.Y + this.Speed.Y();
 
-        this.circle.animate({cx: nextX, cy: nextY}, 200);
+        this.circle.stop().animate({cx: nextX, cy: nextY}, updateTime);
     };
 
     /** Принадлежит ли точка, переданная в параметре, окрестности радиуса this.areaRadius шара
@@ -93,8 +82,8 @@
      * Вызывает мерцание объекта
     */
     Ball.prototype.merkle = function () {
-        this.circle.attr({fill: "#fff", r: this.r + 5})
-            .animate({fill: colour, "stroke-width": 2, stroke: borderColour, r: this.r}, 500);
+        this.circle.stop().attr({fill: colour, r: this.r + 5})
+            .animate({fill: colour, r: this.r}, 150);
     };
 
     /**

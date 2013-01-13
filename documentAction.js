@@ -12,35 +12,43 @@
 /*global Ball: true*/
 /*global Point: true*/
 /*global Line: true*/
+/*global Driver: true*/
+/*global Graphic: true*/
 
 (function (exports) {
     "use strict";
 
     var el,
         idInterval = null,
-        pathArray = [],
-        borderArray = [],
-        driver;
+        driver,
+        intersection,
+        updateTime = 150,
+        defaultTime = 150;
 
-    function intersectChecker() {
-        var i,
-            hitNumber = [],
-            intersect = [],
-            hitCount = 0;
+    function manageIntersect() {
+        if (intersection.kickCount < 1) {
+            if (intersection.rest !== 0) {
+                var speedDirection  = el.Speed.Normalize();
+                el.Speed.set(speedDirection.X() * intersection.rest, speedDirection.Y() * intersection.rest);
 
-        for (i = 0; i < pathArray.length; i += 1) {
-            intersect = Raphael.pathIntersection(pathArray[i], el.circleString());
-            if (intersect.length > 0) {
-                hitCount += 1;
-                hitNumber.push(i);
+                var k = el.Speed.GetLength() / el.moveSpeed();
+                updateTime = k * defaultTime;
+
+                el.move(updateTime);
+                intersection.rest = 0;
+            } else {
+                updateTime = defaultTime;
+                if (intersection.changeOnOposite === true) {
+                    el.reflect();
+                } else {
+                    el.reflectDirection(intersection.line);
+                }
+                intersection = driver.findIntersection();
+                manageIntersect();
             }
-        }
-        if (hitCount === 1) {
-        //    el.merkle();
-            el.reflectDirection(borderArray[hitNumber]);
-        } else if (hitCount > 1) {
-        //    el.merkle();
-            el.reflect();
+        } else {
+            el.move(updateTime);
+            intersection.kickCount -= 1;
         }
     }
 
@@ -49,16 +57,16 @@
 
         if (el.isNearBall(e.pageX, e.pageY)) {
             el.moveBall(e.pageX, e.pageY);
-           // driver.FindCrossPoint();
+            intersection = driver.findIntersection();
 
             if (idInterval === null) {
-                intersectChecker();
-                el.move();
+                manageIntersect();
 
-                idInterval = setInterval(function () {
-                    intersectChecker();
-                    el.move();
-                }, 200);
+                idInterval = setTimeout(function inside() {
+                    manageIntersect();
+
+                    setTimeout(inside, updateTime);
+                }, updateTime);
             }
         }
     }
@@ -77,13 +85,13 @@
                 }
 
                 var canvas = Raphael("main", 1000, 1000),
-                    graphicManager = new Graphic(canvas);
+                    graphicManager = new Graphic(canvas),
+                    borders = graphicManager.createBorder(result);
 
-                graphicManager.createBorder(result, pathArray, borderArray);
                 graphicManager.paintArrow();
 
                 el = new Ball(canvas, 260, 350, 30);
-                driver = new Driver(el);
+                driver = new Driver(el, borders);
 
                 $("#main").mousemove(moveBall);
             });

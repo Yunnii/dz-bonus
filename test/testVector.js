@@ -36,3 +36,30 @@ test("Test vector normalization", function () {
 
     ok(v.X() === -3 / 5 && v.Y() === 4 / 5);
 });
+
+test("Test vector collinear", function () {
+    "use strict";
+
+    var v = new Vector(3, 3),
+        v2 = new Vector(1, 1);
+
+    ok(v.isCollinear(v2) === true);
+});
+
+test("Test vector alignment", function () {
+    "use strict";
+
+    var v = new Vector(3, 3),
+        v2 = new Vector(1, 1);
+
+    ok(v.isAlignment(v2) === true);
+});
+
+test("Test vector alignment 2", function () {
+    "use strict";
+
+    var v = new Vector(-3, -3),
+        v2 = new Vector(1, 1);
+
+    ok(v.isAlignment(v2) === false);
+});

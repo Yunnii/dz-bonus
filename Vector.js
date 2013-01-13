@@ -10,17 +10,15 @@
 (function (exports) {
     "use strict";
 
-    var V;
-
     var Vector = function (x, y) {
-        V = new Point(x, y);
+        this.V = new Point(x, y);
     };
 
     exports.Vector = Vector;
 
-    Vector.prototype.X = function () { return V.X; };
-    Vector.prototype.Y = function () { return V.Y; };
-    Vector.prototype.set = function (x, y) { V.X = x; V.Y = y; };
+    Vector.prototype.X = function () { return this.V.X; };
+    Vector.prototype.Y = function () { return this.V.Y; };
+    Vector.prototype.set = function (x, y) { this.V.X = x; this.V.Y = y; };
 
     /**
      * Создать вектор по двум точкам
@@ -39,7 +37,7 @@
      */
     Vector.prototype.GetLength = function () {
 
-        return Math.abs(V.GetDistanceBetween(Point.Zero));
+        return Math.abs(this.V.GetDistanceBetween(Point.Zero));
     };
 
     /**
@@ -61,4 +59,20 @@
         return (Math.abs(this.X() * otherVector.Y() - this.Y() * otherVector.X()) < 0.1) ? true : false;
     };
 
+    function sign(value) {
+        return (value > 0) ? 1 : -1;
+    }
+
+    /**
+     * Определяет сонаправленность данного вектора с вектором, переданным в параметре
+     * @param otherVector
+     * @return {Boolean} true - сонаправлены, false - не коллинеарны или не сонаправлены
+     */
+    Vector.prototype.isAlignment = function (otherVector) {
+        if (!this.isCollinear(otherVector)) {
+            return false;
+        } else {
+            return (sign(otherVector.X()) === sign(this.X())) && (sign(otherVector.Y()) === sign(this.Y()));
+        }
+    };
 }(window));

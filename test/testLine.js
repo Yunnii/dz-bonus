@@ -37,3 +37,13 @@ test("Test Creating line", function () {
 
     ok(line.A === 2 && line.B === -2 && line.C === 4);
 });
+
+test("Test Belonging to segment", function () {
+    "use strict";
+
+    var v1 = new Point(0, 0),
+        v2 = new Point(2, 2),
+        line = Line.GetLineFrom2Point(v1, v2);
+
+    ok(line.isBelongsToSegment(new Point(1,1)));
+});

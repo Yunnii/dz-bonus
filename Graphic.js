@@ -8,55 +8,61 @@
 (function (exports) {
     "use strict";
 
-    var template = "M <%= previous.X %>,<%= previous.Y %> L <%= next.X %>, <%= next.Y %> L <%= next.X %>,<%= next.Y %>",
-        arr = "M 154,477 L 237,381 L 237,381",
-        canvas;
+    var template = "M <%= previous.X %>,<%= previous.Y %> L <%= next.X %>, <%= next.Y %>",
+        arr = "M 154,477 L 237,381 L 237,381";
 
     var Graphic = function (paper) {
-        canvas = paper;
+        this.canvas = paper;
     };
 
     exports.Graphic = Graphic;
-
-    function paintBorder(pathArray, pth) {
-        canvas.path(pth)
-              .attr({fill: "#fff", "fill-opacity": 1, stroke: "#333", "stroke-width": 1, "stroke-linecap": "square"});
-
-        pathArray.forEach(function (path) {
-            canvas.path(path)
-                  .attr({fill: "#ddd", "fill-opacity": 1, stroke: "#fff", "stroke-width": 24, "stroke-linecap": "square"});
-            canvas.path(path)
-                  .attr({fill: "#ddd", "fill-opacity": 1, stroke: "#333", "stroke-width": 18, "stroke-linecap": "square"});
-        });
-    };
+    Graphic.borderWidth = 9;
 
     Graphic.prototype.paintArrow = function () {
-        canvas.path(arr)
+        this.canvas.path(arr)
                    .attr({stroke: "rgb(206, 102, 95)", "stroke-width": 20, "arrow-end": "classic"});
     };
 
-    Graphic.prototype.createBorder = function (result, pathArray, borderArray) {
+    Graphic.prototype.paintBorder = function (pathArray, pth) {
+        this.canvas.path(pth)
+              .attr({fill: "#eee", "fill-opacity": 1, stroke: "#333", "stroke-width": 2, "stroke-linecap": "square"});
+
+        var that = this;
+        pathArray.forEach(function (path) {
+            that.canvas.path(path)
+                  .attr({fill: "#ddd", "fill-opacity": 1, stroke: "#fff", "stroke-width": 24, "stroke-linecap": "square"});
+            that.canvas.path(path)
+                  .attr({fill: "#ddd", "fill-opacity": 1, stroke: "#333", "stroke-width": Graphic.borderWidth * 2, "stroke-linecap": "square"});
+        });
+    };
+
+    Graphic.prototype.createBorder = function (result) {
         var i,
             next,
+            current,
+            borderArray = [],
+            pathArray = [],
             previous = new Point(result[0].x, result[0].y),
-            pth = "M".concat(previous.X, ",", previous.Y, "L", previous.X, ",", previous.Y);
+            pth = "M".concat(previous.X, ",", previous.Y);
 
-        for (i = 1; i < result.length - 1; i += 1) {
-            next = new Point(result[i + 1].x, result[i + 1].y);
+        for (i = 1; i < result.length; i += 1) {
+            current = new Point(result[i].x, result[i].y);
 
-            pathArray.push(tmpl(template, { previous: previous, next: next}));
-            borderArray.push(Line.GetLineFrom2Point(previous,  next));
-            pth.concat("L", next.X, ",", next.Y);
+            pathArray.push(tmpl(template, { previous: previous, next: current}));
+            borderArray.push(Line.GetLineFrom2Point(previous,  current));
+            pth = pth.concat("L", current.X, ",", current.Y);
 
-            previous = next;
+            previous = current;
         }
 
-        next = new Point(result[0].x, result[0].y);
-        pathArray.push(tmpl(template, { previous: previous, next : next}));
-        borderArray.push(Line.GetLineFrom2Point(previous,  next));
-        pth.concat("L", next.X, ",", next.Y);
+        current = new Point(result[0].x, result[0].y);
+        pathArray.push(tmpl(template, { previous: previous, next : current}));
+        borderArray.push(Line.GetLineFrom2Point(previous,  current));
+        pth = pth.concat("L", current.X, ",", current.Y);
 
-        paintBorder(pathArray, pth);
+        this.paintBorder(pathArray, pth);
+
+        return borderArray;
     };
 
 }(window));
