@@ -23,7 +23,9 @@
         driver,
         intersection,
         updateTime = 150,
-        defaultTime = 150;
+        defaultTime = 150,
+        arrow,
+        interval;
 
     function manageIntersect() {
         if (intersection.kickCount < 1) {
@@ -60,6 +62,9 @@
             intersection = driver.findIntersection();
 
             if (idInterval === null) {
+                clearInterval(interval);
+                arrow.remove();
+                
                 manageIntersect();
 
                 idInterval = setTimeout(function inside() {
@@ -88,7 +93,12 @@
                     graphicManager = new Graphic(canvas),
                     borders = graphicManager.createBorder(result);
 
-                graphicManager.paintArrow();
+                arrow = graphicManager.paintArrow();
+
+                interval = setInterval(function () {
+                    arrow.stop().attr({"stroke-width": 24, "stroke-opacity": 0.4})
+                                .animate({"stroke-width": 20, "stroke-opacity": 1}, 1000);
+                }, 1000);
 
                 el = new Ball(canvas, 260, 350, 30);
                 driver = new Driver(el, borders);

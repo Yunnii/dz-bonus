@@ -19,8 +19,8 @@
     Graphic.borderWidth = 9;
 
     Graphic.prototype.paintArrow = function () {
-        this.canvas.path(arr)
-                   .attr({stroke: "rgb(206, 102, 95)", "stroke-width": 20, "arrow-end": "classic"});
+        return this.canvas.path(arr)
+                   .attr({stroke: "rgb(206, 102, 95)", "stroke-width": 20, "arrow-end": "classic", "stroke-opacity": 1});
     };
 
     Graphic.prototype.paintBorder = function (pathArray, pth) {
