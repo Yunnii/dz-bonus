@@ -64,7 +64,7 @@
             if (idInterval === null) {
                 clearInterval(interval);
                 arrow.remove();
-                
+
                 manageIntersect();
 
                 idInterval = setTimeout(function inside() {
