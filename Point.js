@@ -27,7 +27,7 @@
      * @param otherPoint - точка, до которой необходимо найти расстояние
      * @return {Number} - расстояние между точками
      */
-    Point.prototype.GetDistanceBetween = function (otherPoint) {
+    Point.prototype.getDistanceBetween = function (otherPoint) {
 
         return Math.sqrt((otherPoint.X - this.X) * (otherPoint.X - this.X)  + (otherPoint.Y - this.Y) * (otherPoint.Y - this.Y));
     };

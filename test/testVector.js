@@ -18,7 +18,7 @@ test("Test Find vector length", function () {
 
     var v = new Vector(3, 4);
 
-    ok(v.GetLength() === 5);
+    ok(v.getLength() === 5);
 });
 
 test("Test Find vector length 2", function () {
@@ -26,13 +26,13 @@ test("Test Find vector length 2", function () {
 
     var v = new Vector(-3, 4);
 
-    ok(v.GetLength() === 5);
+    ok(v.getLength() === 5);
 });
 
 test("Test vector normalization", function () {
     "use strict";
 
-    var v = new Vector(-3, 4).Normalize();
+    var v = new Vector(-3, 4).normalize();
 
     ok(v.X() === -3 / 5 && v.Y() === 4 / 5);
 });

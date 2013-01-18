@@ -10,6 +10,14 @@
 (function (exports) {
     "use strict";
 
+    /**
+     * Создает экземпляр объекта, представляющего вектор
+     *
+     * @param {double}x
+     * @param {double}y
+     * @constructor
+     * @this {Vector}
+     */
     var Vector = function (x, y) {
         this.V = new Point(x, y);
     };
@@ -21,37 +29,46 @@
     Vector.prototype.set = function (x, y) { this.V.X = x; this.V.Y = y; };
 
     /**
-     * Создать вектор по двум точкам
+     * Создает вектор по двум точкам
+     *
      * @param start - начало
      * @param finish - конец
      * @return {Vector} - созданный вектор
      */
-    Vector.GetVectorFrom2Point = function (start, finish) {
+    Vector.getVectorFrom2Point = function (start, finish) {
 
         return new Vector(finish.X - start.X, finish.Y - start.Y);
     };
 
-    /**
-     * Посчитать длину вектора
-     * @return {Number} - длина вектора
-     */
-    Vector.prototype.GetLength = function () {
-
-        return Math.abs(this.V.GetDistanceBetween(Point.Zero));
+    Vector.prototype.stretch = function (k) {
+        var direction  = this.normalize();
+        this.set(direction.X() * k, direction.Y() * k);
     };
 
     /**
-     * Нормализовать вектор
+     * Возвращает длину вектора
+     *
+     * @return {Number} - длина вектора
+     */
+    Vector.prototype.getLength = function () {
+
+        return Math.abs(this.V.getDistanceBetween(Point.Zero));
+    };
+
+    /**
+     * Возвращает нормализованный вектор
+     *
      * @return {Vector} - вектор единичной длины, направление совпадает с данным
      */
-    Vector.prototype.Normalize = function () {
+    Vector.prototype.normalize = function () {
 
-        var length = this.GetLength();
+        var length = this.getLength();
         return new Vector(this.X() / length, this.Y() / length);
     };
 
     /**
      * Определяет коллинеарность данного вектора с вектором, переданным в параметре
+     *
      * @param otherVector
      * @return {Boolean} true - коллинеарны, false - не коллинеарны
      */
@@ -65,6 +82,7 @@
 
     /**
      * Определяет сонаправленность данного вектора с вектором, переданным в параметре
+     *
      * @param otherVector
      * @return {Boolean} true - сонаправлены, false - не коллинеарны или не сонаправлены
      */

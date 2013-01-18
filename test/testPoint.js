@@ -19,5 +19,5 @@ test("Test finding distance", function () {
     var v = new Point(7, 4);
     var v2 = new Point(3, 1);
 
-    ok(v.GetDistanceBetween(v2) === 5);
+    ok(v.getDistanceBetween(v2) === 5);
 });

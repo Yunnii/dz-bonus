@@ -13,7 +13,7 @@
     "use strict";
 
     var colour = "90-rgb(151, 193, 246)-rgb(89, 154, 219)",
-        speed = 10;
+        speed = 5;
 
     /**
      * Конструктор, принимает координаты центра шара, радиус и объект на котором необходимо его разместить
@@ -22,11 +22,11 @@
      * @param {double}x
      * @param {double}y
      * @param {double}r
-     *
+     * @constructor
+     * @this {Ball}
      */
     var Ball = function (paper, x, y, r) {
         this.r = r;
-
         this.circle = paper.circle(x, y, r).attr({fill: colour});
         this.areaRadius = r + 30;
         this.Speed = new Vector(0, 0);
@@ -36,7 +36,6 @@
 
     Ball.prototype.X = function () { return this.circle.attrs.cx; };
     Ball.prototype.Y = function () { return this.circle.attrs.cy; };
-    Ball.prototype.circleString = function () { return getCircleToPath(this.X(), this.Y(), this.r); };
     Ball.prototype.moveSpeed = function () { return speed; };
     /**
     * Пересчитать скорость для движения в указанном направлении
@@ -65,7 +64,8 @@
             nextX = center.X + this.Speed.X(),
             nextY = center.Y + this.Speed.Y();
 
-        this.circle.stop().animate({cx: nextX, cy: nextY}, updateTime);
+        this.circle.stop().animate({cx: nextX, cy: nextY, r: this.r}, updateTime);
+
     };
 
     /** Принадлежит ли точка, переданная в параметре, окрестности радиуса this.areaRadius шара
@@ -79,14 +79,6 @@
     };
 
     /**
-     * Вызывает мерцание объекта
-    */
-    Ball.prototype.merkle = function () {
-        this.circle.stop().attr({fill: colour, r: this.r + 5})
-            .animate({fill: colour, r: this.r}, 150);
-    };
-
-    /**
     * Пересчет скорости при возникновении события "отражение от стенки"
     *
     * @param {Line}borderLine - уравнение прямой, описывающей стенку
@@ -95,12 +87,12 @@
     Ball.prototype.reflectDirection = function (borderLine) {
 
         var center = new Point(this.X(), this.Y()),
-            normalToBorderLine = borderLine.GetNormalLine(center),
+            normalToBorderLine = borderLine.getNormalLine(center),
             previousLocation = new Point(center.X - 2 * this.Speed.X(), center.Y - 2 * this.Speed.Y()),
-            parallelToBorderLine = normalToBorderLine.GetNormalLine(previousLocation),
-            reflectionPoint = parallelToBorderLine.GetIntersectPoint(normalToBorderLine),
+            parallelToBorderLine = normalToBorderLine.getNormalLine(previousLocation),
+            reflectionPoint = parallelToBorderLine.getIntersectPoint(normalToBorderLine),
             nextPoint = new Point(2 * reflectionPoint.X - previousLocation.X, 2 * reflectionPoint.Y - previousLocation.Y),
-            normalizeNext = Vector.GetVectorFrom2Point(center, nextPoint).Normalize();
+            normalizeNext = Vector.getVectorFrom2Point(center, nextPoint).normalize();
 
         this.Speed.set(speed * normalizeNext.X(), speed * normalizeNext.Y());
     };
@@ -110,6 +102,6 @@
      */
 
     Ball.prototype.reflect = function () {
-        this.Speed.set(-this.Speed.X(), -this.Speed.Y());
+        this.Speed.stretch(-speed);
     };
 }(window));

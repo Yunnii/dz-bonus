@@ -27,7 +27,7 @@ test("Reflect moving", function () {
     "use strict";
 
     ball.moveBall(0, 0);
-    var border = Line.GetLineFrom2Point(new Point(0,60), new Point(60, 0));
+    var border = Line.getLineFrom2Point(new Point(0,60), new Point(60, 0));
     ball.reflectDirection(border);
 
     ok(Math.abs(ball.Speed.X() + speed * Math.sqrt(2) / 2 < 0.1) && Math.abs(ball.Speed.Y() + speed * Math.sqrt(2) / 2 < 0.1));
@@ -37,7 +37,7 @@ test("Reflect moving", function () {
     "use strict";
 
     ball.moveBall(0, 0);
-    var border = Line.GetLineFrom2Point(new Point(20, 20), new Point(0, 20));
+    var border = Line.getLineFrom2Point(new Point(20, 20), new Point(0, 20));
     ball.reflectDirection(border);
 
     ok(Math.abs(ball.Speed.X() - speed * Math.sqrt(2) / 2) < 0.1 && Math.abs(ball.Speed.Y() + speed * Math.sqrt(2) / 2 < 0.1));

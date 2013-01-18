@@ -14,6 +14,7 @@
 /*global Line: true*/
 /*global Driver: true*/
 /*global Graphic: true*/
+/*global TaskQueue: true*/
 
 (function (exports) {
     "use strict";
@@ -22,35 +23,32 @@
         idInterval = null,
         driver,
         intersection,
-        updateTime = 150,
-        defaultTime = 150,
+        defaultTime = 30,
         arrow,
-        interval;
+        interval,
+        taskQueue;
 
     function manageIntersect() {
-        if (intersection.kickCount < 1) {
-            if (intersection.rest !== 0) {
-                var speedDirection  = el.Speed.Normalize();
-                el.Speed.set(speedDirection.X() * intersection.rest, speedDirection.Y() * intersection.rest);
+        var rest;
 
-                var k = el.Speed.GetLength() / el.moveSpeed();
-                updateTime = k * defaultTime;
-
-                el.move(updateTime);
-                intersection.rest = 0;
-            } else {
-                updateTime = defaultTime;
-                if (intersection.changeOnOposite === true) {
-                    el.reflect();
-                } else {
-                    el.reflectDirection(intersection.line);
-                }
-                intersection = driver.findIntersection();
-                manageIntersect();
-            }
+        if (!taskQueue.isEmpty()) {
+            taskQueue.getNext();
+            el.move(defaultTime);
         } else {
-            el.move(updateTime);
-            intersection.kickCount -= 1;
+            rest = taskQueue.getRest();
+            el.Speed.stretch(rest);
+
+            el.move(defaultTime);
+            el.Speed.stretch(el.moveSpeed());
+
+            if (intersection.changeOnOpposite === true) {
+                el.reflect();
+            } else {
+                el.reflectDirection(intersection.line);
+            }
+
+            intersection = driver.findIntersection();
+            taskQueue = new TaskQueue(intersection.distance, el.moveSpeed());
         }
     }
 
@@ -60,6 +58,7 @@
         if (el.isNearBall(e.pageX, e.pageY)) {
             el.moveBall(e.pageX, e.pageY);
             intersection = driver.findIntersection();
+            taskQueue = new TaskQueue(intersection.distance, el.moveSpeed());
 
             if (idInterval === null) {
                 clearInterval(interval);
@@ -70,8 +69,8 @@
                 idInterval = setTimeout(function inside() {
                     manageIntersect();
 
-                    setTimeout(inside, updateTime);
-                }, updateTime);
+                    setTimeout(inside, defaultTime);
+                }, defaultTime);
             }
         }
     }
